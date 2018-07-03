@@ -26,17 +26,27 @@ int get_local_ip(char *ifname, char *ip)
 
     if (0 != ioctl(inet_sock, SIOCGIFADDR, &ifr))
     {
+        close(inet_sock);
         perror("ioctl error");
         return -1;
     }
+
     temp = inet_ntoa(((struct sockaddr_in *)&(ifr.ifr_addr))->sin_addr);
+    if ( NULL == temp)
+    {
+        close(inet_sock);
+        perror("inet_ntoa error");
+        return -1;
+    }
+
     memcpy(ip, temp, strlen(temp));
     ip[strlen(temp)] = '\0';
+
     close(inet_sock);
+
     return 0;
 }
 
-char *itoa(u_int64_t value, char *result, int base);
 char *itoa(u_int64_t value, char *result, int base)
 {
     // check that the base if valid
